@@ -1,9 +1,14 @@
-namespace testcasino 
+namespace ChevyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.0f;
+				public const float Version = 2.1f;
 				public static byte streak = 0;	
+				private static void EncodingFix()
+				{
+					Console.OutputEncoding = System.Text.Encoding.UTF8;
+            		Console.InputEncoding = System.Text.Encoding.UTF8;
+				}
 				static void Main()
 				{	
 					EncodingFix();
@@ -15,12 +20,6 @@ namespace testcasino
 							Messages.CheckEndOfGame(Casino.ShowBalance());
 							Messages.Menu();
 						}
-				}
-
-				static void EncodingFix()
-				{
-					Console.OutputEncoding = System.Text.Encoding.UTF8;
-            		Console.InputEncoding = System.Text.Encoding.UTF8;
 				}
 			}
 
@@ -58,7 +57,9 @@ namespace testcasino
 								break;
 							case 0:
 								Console.WriteLine(ByeMessage);
-								return;
+								Environment.Exit(0);
+								break;
+
 							default:
 								Console.WriteLine(ErrorMessage);
 								break;
@@ -133,21 +134,21 @@ namespace testcasino
 						Console.WriteLine("Вы проиграли все свои деньги в казино! Вас накажет жена.");
 						Console.WriteLine("По возвращению домой из казино ваша жена выгнала Вас из дома.");
 						Console.ReadKey();
-						return;
+						Environment.Exit(0);
 					}
 
-					if (balance > 10000)
+					if (balance > 1000)
 					{
 						Console.WriteLine("ХОРОШАЯ КОНЦОВКА:");
 						Console.WriteLine("Вы обыграли казино! Не приходите сюда больше.");
 						Console.WriteLine("Вы ничего не рассказали жене про свой выигрыш.");
 						Console.ReadKey();
-						return;
+						Environment.Exit(0);
 					}
 				}
    			}
 
-		class Casino 
+		public class Casino 
 			{	
 				// Стартовый баланс
 				public static double balance = 100;
@@ -221,7 +222,6 @@ namespace testcasino
 							var choice = "";
 							Console.WriteLine("Крупье:\nВаша задача угадать, будет следующее число больше или меньше вашего текущего.");
 							Console.WriteLine("Если выпадает число, равное вашему, вы проигрываете.");
-							Console.WriteLine(Messages.BetQuestion);
 							Console.WriteLine(Messages.BetQuestion);
 							double.TryParse(Console.ReadLine(), out double bet);
 							while (bet > ShowBalance() || bet <= 0)
