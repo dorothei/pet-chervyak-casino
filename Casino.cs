@@ -2,7 +2,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.42f;
+				public const float Version = 2.43f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -366,8 +366,8 @@ namespace ChervyakCasino
 								Messages.GameResult("highlow", 1, winReward, Convert.ToString(userConfig.randomNumber));
 							} else
 								{
-									Messages.GameResult("highlow", 0, userConfig.bet, Convert.ToString(userConfig.randomNumber));
 									BalanceChange(-userConfig.bet);
+									Messages.GameResult("highlow", 0, userConfig.bet, Convert.ToString(userConfig.randomNumber));
 								}
 						}
 					}	
