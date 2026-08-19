@@ -2,7 +2,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.4f;
+				public const float Version = 2.41f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -343,7 +343,7 @@ namespace ChervyakCasino
 							double winReward = choice switch
 							{
 								"больше" => bet * (10.0 / (11 - yourNumber) * BasicCoefficient),
-								"меньше" => Math.Round(bet * (10 / (yourNumber - 1 + 0.1) * BasicCoefficient),2),
+								"меньше" => Math.Round(bet * (10.0 / (yourNumber - 1 + 0.1) * BasicCoefficient),2),
 								_ => 0
 							};
 							return winReward;	
