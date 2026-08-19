@@ -2,7 +2,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.3f;
+				public const float Version = 2.4f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -156,7 +156,7 @@ namespace ChervyakCasino
 						Environment.Exit(0);
 					}
 
-					if (balance > 1000)
+					if (balance > Casino.WinBalance)
 					{
 						Console.WriteLine("ХОРОШАЯ КОНЦОВКА:");
 						Console.WriteLine("Вы обыграли казино! Не приходите сюда больше.");
@@ -169,9 +169,10 @@ namespace ChervyakCasino
 
 		public class Casino 
 			{	
-				// Стартовый баланс
-				public static double balance = 100;
+				public const double StartBalance = 100; // Стартовый баланс
+				public static double balance = StartBalance;
 				public const double BasicCoefficient = 1.95;
+				public const double WinBalance = 1000;
 				public static double ShowBalance() =>
 				balance;
 
