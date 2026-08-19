@@ -2,7 +2,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.2f;
+				public const float Version = 2.3f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -171,7 +171,7 @@ namespace ChervyakCasino
 			{	
 				// Стартовый баланс
 				public static double balance = 100;
-
+				public const double BasicCoefficient = 1.95;
 				public static double ShowBalance() =>
 				balance;
 
@@ -208,10 +208,13 @@ namespace ChervyakCasino
 						public static int GenerateCoinflipResult() =>
 						Random.Shared.Next(0, 2);
 
+						public static double WinReward(double bet) =>
+						bet * BasicCoefficient;
+
 						public static void PlayCoinflipRound()
 						{
 							var userConfig = UserCoinflipConfig();
-							double winReward = Math.Round(userConfig.bet + userConfig.bet * 0.3, 2);
+							double winReward = WinReward(userConfig.bet);
 							string textOutcome = (GenerateCoinflipResult() == 1) ? "решка" : "орел";
 							if (userConfig.choice == textOutcome) 
 							{
@@ -277,7 +280,7 @@ namespace ChervyakCasino
 						}
 
 						public static double WinReward(double bet) =>
-						bet * 1.95;
+						bet * BasicCoefficient;
 
 						public static void PlayRSP()
 						{
@@ -338,8 +341,8 @@ namespace ChervyakCasino
 						{
 							double winReward = choice switch
 							{
-								"больше" => bet * (10 / (11 - yourNumber) * 0.95),
-								"меньше" => Math.Round(bet * (10 / (yourNumber - 1 + 0.1) * 0.95),2),
+								"больше" => bet * (10.0 / (11 - yourNumber) * BasicCoefficient),
+								"меньше" => Math.Round(bet * (10 / (yourNumber - 1 + 0.1) * BasicCoefficient),2),
 								_ => 0
 							};
 							return winReward;	
