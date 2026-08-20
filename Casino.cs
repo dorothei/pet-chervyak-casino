@@ -4,7 +4,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.45f;
+				public const float Version = 2.46f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -31,7 +31,7 @@ namespace ChervyakCasino
 			public static bool IsShowRulesEnabled() =>
 			showRules;
 
-			public static bool ToggleRules() =>
+			public static void ToggleRules() =>
 			showRules = !showRules;
 		}	
 
