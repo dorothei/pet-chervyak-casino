@@ -1,8 +1,10 @@
+using System.ComponentModel;
+
 namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.43f;
+				public const float Version = 2.45f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -22,31 +24,71 @@ namespace ChervyakCasino
 				}
 			}
 
+		class Settings
+		{
+			static bool showRules = true;
+		
+			public static bool IsShowRulesEnabled() =>
+			showRules;
+
+			public static bool ToggleRules() =>
+			showRules = !showRules;
+		}	
 
 		class Messages
 			{
-				public const string HeadsOrTailsQuestion = "Крупье:\nОрел или Решка?";
-				public const string BetQuestion = "Ваша ставка?";	
-				public const string RspChoiceQuestion = "Мысли:\nКамень, ножницы, бумага?";
-				public static void ErrorMessage() =>
-				Console.WriteLine("Выбрано некорректное действие. Попробуйте еще раз.");
-				public const string ByeMessage = "Женщина на ресепшене:\nДо скорых встреч!";
-				public const string HighlowStartMessage = "Крупье:\nВаша задача угадать, будет следующее число больше или меньше вашего текущего.\nЕсли выпадает число, равное вашему, вы проигрываете.";
-				public const string RspStartMessage = "Крупье:\nДобро пожаловать за стол для игры в Камень-Ножницы-Бумага!\nПравила просты:\nК бьет Н\nН бьет Б\nБ бьет К.";
+				public const string HeadsOrTailsQuestion = """
+					Крупье:
+					Орел или Решка?
+					""";	
+				public const string RspChoiceQuestion = """
+					Мысли:
+					Камень, ножницы, бумага?
+					""";
+				public const string ByeMessage = """
+					Женщина на ресепшене:
+					До скорых встреч!
+					""";
+				public const string HighlowStartMessage = """
+					Крупье:
+					Ваша задача угадать, будет следующее число больше или меньше вашего текущего.
+					Если выпадает число, равное вашему, вы проигрываете.
+					""";
+				public const string RspStartMessage = """
+					Крупье:
+					Добро пожаловать за стол для игры в Камень-Ножницы-Бумага!
+					Правила просты:
+					К бьет Н
+					Н бьет Б
+					Б бьет К.
+					""";
 				public const string RspGameMessage = "Камень, ножницы, бумага! Цу-е-фа";
 				public const string RspDrawMessage = "Что-ж. Ничья.";
+				public const string BetQuestion = "Ваша ставка?";
 				public static string BetOverrun() => 
-				$"Крупье:\nУказанная сумма больше чем ваш баланс или равна нулю. Казино кредитов, к сожалению, не даёт. Попробуйте еще раз | {Casino.ShowBalance()}"; 
+					$"""
+					Крупье:
+					Указанная сумма больше чем ваш баланс или равна нулю. Казино кредитов, к сожалению, не даёт. 
+					Попробуйте еще раз | {Casino.ShowBalance()}
+					"""; 
+				
+				public static void ErrorMessage() =>
+				Console.WriteLine("Выбрано некорректное действие. Попробуйте еще раз.");
+
 				public static string YourBalanceMessage() => 
 				$"Ваш баланс: {Math.Round(Casino.ShowBalance(), 2)}";
 
 				public static void Menu()
 				{
-					Console.WriteLine("1 - Сыграть в Орла и Решку");
-					Console.WriteLine("2 - Сыграть в Камень-Ножницы-Бумага [NEW]");
-					Console.WriteLine("3 - Сыграть в Больше/Меньше");
-					Console.WriteLine("0 - Выйти из казино");
-					if (byte.TryParse(Console.ReadLine(), out byte act))
+					Console.WriteLine($"""
+						1 - Сыграть в Орла и Решку
+						2 - Сыграть в Камень-Ножницы-Бумага [NEW]
+						3 - Сыграть в Больше/Меньше
+						4 - Показывать правила игр - {Settings.IsShowRulesEnabled()}
+						0 - Выйти из казино
+						""");
+
+					if (byte.TryParse(Console.ReadLine(), out byte act))	
 					{
 						switch (act)
 						{
@@ -58,6 +100,9 @@ namespace ChervyakCasino
 								break;
 							case 3: 
 								Casino.Highlow.PlayHighlow();
+								break;
+							case 4:
+								Settings.ToggleRules();
 								break;
 							case 0:
 								Console.WriteLine(ByeMessage);
@@ -124,43 +169,51 @@ namespace ChervyakCasino
 
 				public static void ShowHeader()
 				{
-					Console.WriteLine("###################################################################");
-					Console.WriteLine(" ███  █   █ █████ ████  █   █ █   █  ███   ███  █   █  ███  █   █ ");
-					Console.WriteLine("█     █   █ █     █   █ █   █  █ █  █   █ █     █   █ █   █ █  █");  
-					Console.WriteLine("█     █████ ████  ████  █   █   █   █████ █     █████ █   █ ███");   
-					Console.WriteLine("█     █   █ █     █  █   █ █    █   █   █ █     █   █ █   █ █  █");
-					Console.WriteLine(" ███  █   █ █████ █   █   █     █   █   █  ███  █   █  ███  █   █ ");
-					Console.WriteLine("");
-					Console.WriteLine("     ███   ███   ████ ███ █   █  ███  ");
-					Console.WriteLine("   █     █   █ █      █  ██  █ █   █  ");
-					Console.WriteLine("  █     █████  ███   █  █ █ █ █   █   ");
-					Console.WriteLine(" █     █   █     █  █  █  ██ █   █    ");
-					Console.WriteLine(" ███  █   █ ████  ███ █   █  ███      ");
-					Console.WriteLine("###################################################################");
-					Console.WriteLine("Author: 68 79 82 79 84 79 82 79");
-					Console.WriteLine($"Version: {Program.Version}");
-					Console.WriteLine("Дворецкий:\nДобро пожаловать в казино 'Червячок!'");
-					Console.WriteLine("В нашем казино - выигрывают!");
-					Console.WriteLine($"Ваш баланс на сегодня: {Casino.ShowBalance()}");
-					Console.WriteLine("------------------------------------");
+					Console.WriteLine($"""
+						###################################################################
+						███  █   █ █████ ████  █   █ █   █  ███   ███  █   █  ███  █   █ 
+						█    █   █ █     █   █ █   █  █ █  █   █ █     █   █ █   █ █  █  
+						█    █████ ████  ████  █   █   █   █████ █     █████ █   █ ███
+						█    █   █ █     █  █   █ █    █   █   █ █     █   █ █   █ █  █
+						███  █   █ █████ █   █   █     █   █   █  ███  █   █  ███  █   █
+
+								 ███   ███   ████ ███ █   █  ███  
+								█     █   █ █      █  ██  █ █   █  
+								█     █████  ███   █  █ █ █ █   █   
+								█     █   █     █  █  █  ██ █   █    
+								 ███  █   █ ████  ███ █   █  ███      
+						###################################################################
+						Author: 68 79 82 79 84 79 82 79"
+						Version: {Program.Version}
+						Дворецкий:
+						Добро пожаловать в казино "Червячок"!
+						В нашем казино - выигрывают!
+						Ваш баланс на сегодня: {Casino.ShowBalance()}
+						------------------------------------
+						Приступить к лудомании... (ENTER)
+						""");
 				}
 
 				public static void CheckEndOfGame(double balance)
 				{
-					if (balance <= 0) 
+					if (balance <= Casino.BadEndBalance) 
 					{
-						Console.WriteLine("ПЛОХАЯ КОНЦОВКА:");
-						Console.WriteLine("Вы проиграли все свои деньги в казино! Вас накажет жена.");
-						Console.WriteLine("По возвращению домой из казино ваша жена выгнала Вас из дома.");
+						Console.WriteLine("""
+							ПЛОХАЯ КОНЦОВКА:
+							Вы проиграли все свои деньги в казино! Вас накажет жена.
+							По возвращению домой из казино ваша жена выгнала Вас из дома.
+							""");
 						Console.ReadKey();
 						Environment.Exit(0);
 					}
 
-					if (balance > Casino.WinBalance)
+					if (balance > Casino.GoodEndBalance)
 					{
-						Console.WriteLine("ХОРОШАЯ КОНЦОВКА:");
-						Console.WriteLine("Вы обыграли казино! Не приходите сюда больше.");
-						Console.WriteLine("Вы ничего не рассказали жене про свой выигрыш.");
+						Console.WriteLine("""
+							ХОРОШАЯ КОНЦОВКА:
+							Вы обыграли казино! Не приходите сюда больше.
+							Вы ничего не рассказали жене про свой выигрыш.
+							""");
 						Console.ReadKey();
 						Environment.Exit(0);
 					}
@@ -170,14 +223,14 @@ namespace ChervyakCasino
 		public class Casino 
 			{	
 				public const double StartBalance = 100; // Стартовый баланс
-				public static double balance = StartBalance;
+				static double balance = StartBalance;
 				public const double BasicCoefficient = 1.95;
-				public const double WinBalance = 1000;
+				public const double BadEndBalance = 0;
+				public const double GoodEndBalance = 1000;
 				public static double ShowBalance() =>
 				balance;
-
-					public static void BalanceChange(double difference) =>
-					balance += difference;
+				public static void BalanceChange(double difference) =>
+				balance += difference;
 
 				public static double UserBet()
 					{
@@ -195,7 +248,7 @@ namespace ChervyakCasino
 					{
 						public static (string choice, double bet) UserCoinflipConfig()
 						{
-							var bet = UserBet();
+							double bet = UserBet();
 							string ? choice = "";
 							while ((choice != "орел") && (choice != "решка"))
 							{
@@ -214,24 +267,23 @@ namespace ChervyakCasino
 
 						public static void PlayCoinflipRound()
 						{
-							var userConfig = UserCoinflipConfig();
-							double winReward = WinReward(userConfig.bet);
+							(string userChoice, double bet) = UserCoinflipConfig();
+							double winReward = WinReward(bet);
 							string textOutcome = (GenerateCoinflipResult() == 1) ? "решка" : "орел";
-							if (userConfig.choice == textOutcome) 
+							if (userChoice == textOutcome) 
 							{
 								BalanceChange(+winReward);
 								Messages.GameResult("coinflip", 1, winReward);
 							} else
 								{
-									BalanceChange(-userConfig.bet);
-									Messages.GameResult("coinflip", 0, userConfig.bet, textOutcome);
+									BalanceChange(-bet);
+									Messages.GameResult("coinflip", 0, bet, textOutcome);
 								}
 						}
 					}
 
 				public class RockScissorsPaper
 					{
-						private static bool alreadyPlayed = false;
 						public enum Rsp
 						{
 							Rock = 0,
@@ -253,7 +305,7 @@ namespace ChervyakCasino
 
 						public static void OutputMessages()
 						{
-							if (!alreadyPlayed)
+							if (Settings.IsShowRulesEnabled())
 							{
 								Console.WriteLine(Messages.RspStartMessage);
 							} 
@@ -262,7 +314,7 @@ namespace ChervyakCasino
 
 						public static (Rsp userChoice, double bet) UserRSPConfig()
 						{
-							var bet = UserBet();
+							double bet = UserBet();
 							Console.WriteLine(Messages.RspChoiceQuestion);
 							string? userInput = Console.ReadLine()?.Trim().ToLower();
 							while ((userInput != "камень") && (userInput != "ножницы") && (userInput != "бумага"))
@@ -286,23 +338,22 @@ namespace ChervyakCasino
 						public static void PlayRSP()
 						{
 							OutputMessages();
-							alreadyPlayed = true;
-							var computerChoice = GenerateComputerChoice();
-							var input = UserRSPConfig();
-							double winReward = WinReward(input.bet);
-							int gameResult = (3 + (int)input.userChoice - (int)computerChoice.randomRsp) % 3;
+							(Rsp computerChoice, string ruTranslate) = GenerateComputerChoice();
+							(Rsp userChoice, double bet) = UserRSPConfig();
+							double winReward = WinReward(bet);
+							int gameResult = (3 + (int)userChoice - (int)computerChoice) % 3;
 							switch (gameResult)
 							{
 								case 0:
-									Messages.GameResult("rsp", 2, 0, computerChoice.ruTranslate);
+									Messages.GameResult("rsp", 2, 0, ruTranslate);
 									return;
 								case 1:
 									BalanceChange(winReward); 
-									Messages.GameResult("rsp", 1, winReward, computerChoice.ruTranslate);
+									Messages.GameResult("rsp", 1, winReward, ruTranslate);
 									return;
 								case 2:
-									BalanceChange(-input.bet);
-									Messages.GameResult("rsp", 0, input.bet, computerChoice.ruTranslate);
+									BalanceChange(-bet);
+									Messages.GameResult("rsp", 0, bet, ruTranslate);
 									return;
 								default:
 									return;
@@ -312,13 +363,12 @@ namespace ChervyakCasino
 
 				public class Highlow
 					{
-						public static bool alreadyPlayed = false;
 						public static (int yourNumber, int randomNumber) GenerateHighLowNumbers() =>
 						(Random.Shared.Next(1, 11), Random.Shared.Next(1, 11));
 
 						public static void OutMessage()
 						{
-							if (!alreadyPlayed)
+							if (Settings.IsShowRulesEnabled())
 							{
 								Console.WriteLine(Messages.HighlowStartMessage);
 							} 
@@ -326,16 +376,16 @@ namespace ChervyakCasino
 
 						public static (double bet, string choice, int yourNumber, int randomNumber) UserHighlowConfig()
 						{	
-							var random = GenerateHighLowNumbers();
+							(int yourNumber, int randomNumber) = GenerateHighLowNumbers();
 							string ? choice = "";
 							double bet = UserBet();
-							Console.WriteLine($"Ваше число: {random.yourNumber}");
+							Console.WriteLine($"Ваше число: {yourNumber}");
 							Console.WriteLine("Больше или меньше?");
 							while ((choice != "больше") && (choice != "меньше"))
 							{
 								choice = Console.ReadLine()?.Trim().ToLower();
 							}
-							return (bet, choice, random.yourNumber, random.randomNumber);
+							return (bet, choice, yourNumber, randomNumber);
 						}
 
 						public static double WinReward(double bet, string choice, int yourNumber)
@@ -357,21 +407,20 @@ namespace ChervyakCasino
 						public static void PlayHighlow()
 						{
 							OutMessage();
-							alreadyPlayed = true;
-							var userConfig = UserHighlowConfig();
-							var winReward = WinReward(userConfig.bet, userConfig.choice, userConfig.yourNumber);
-							if ((userConfig.choice == "больше" && userConfig.yourNumber < userConfig.randomNumber) || (userConfig.choice == "меньше" && userConfig.yourNumber > userConfig.randomNumber))
+							(double bet, string userChoice, int yourNumber, int randomNumber) = UserHighlowConfig();
+							var winReward = WinReward(bet, userChoice, yourNumber);
+							if ((userChoice == "больше" && yourNumber < randomNumber) || (userChoice == "меньше" && yourNumber > randomNumber))
 							{
 								BalanceChange(+winReward);
-								Messages.GameResult("highlow", 1, winReward, Convert.ToString(userConfig.randomNumber));
+								Messages.GameResult("highlow", 1, winReward, Convert.ToString(randomNumber));
 							} else
 								{
-									BalanceChange(-userConfig.bet);
-									Messages.GameResult("highlow", 0, userConfig.bet, Convert.ToString(userConfig.randomNumber));
+									BalanceChange(-bet);
+									Messages.GameResult("highlow", 0, bet, Convert.ToString(randomNumber));
 								}
 						}
-					}	
-			}
-		}
+					}
+			}	
+	}
 	
 
