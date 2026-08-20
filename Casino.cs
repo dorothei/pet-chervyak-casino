@@ -2,7 +2,7 @@ namespace ChervyakCasino
 	{
 		class Program 
 			{
-				public const float Version = 2.46f;
+				public const float Version = 2.47f;
 				private static void EncodingFix()
 				{
 					Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -242,41 +242,71 @@ namespace ChervyakCasino
 						return bet;
 					}
 
+				public static string UserChoice(params string[] options)
+					{
+						string input;
+						while (true)
+						{
+							input = Console.ReadLine()?.Trim().ToLower() ?? throw new ArgumentOutOfRangeException();
+							if (options.Contains(input))
+							{
+								return input;
+							}
+							Messages.ErrorMessage();
+						}
+					}
+
 				public class Coinflip
 					{
 						public static (string choice, double bet) UserCoinflipConfig()
 						{
 							double bet = UserBet();
-							string ? choice = "";
-							while ((choice != "орел") && (choice != "решка"))
-							{
-								Console.WriteLine(Messages.HeadsOrTailsQuestion);
-								choice = Console.ReadLine()?.Trim().ToLower();
-							}
+							Console.WriteLine(Messages.HeadsOrTailsQuestion);
+							string choice = UserChoice("орел", "решка");
 							return (choice, bet);
 						} 
 
 						// Генерируем исход игры 
-						public static int GenerateCoinflipResult() =>
-						Random.Shared.Next(0, 2);
+						public static string GenerateComputerCoinflip() =>
+						(Random.Shared.Next(0, 2) == 1) ? "решка" : "орел";
 
 						public static double WinReward(double bet) =>
 						bet * BasicCoefficient;
 
-						public static void PlayCoinflipRound()
+
+						public static int GameResult(string userChoice, string computerOutcome)
 						{
-							(string userChoice, double bet) = UserCoinflipConfig();
-							double winReward = WinReward(bet);
-							string textOutcome = (GenerateCoinflipResult() == 1) ? "решка" : "орел";
-							if (userChoice == textOutcome) 
+							if (userChoice == computerOutcome) 
 							{
-								BalanceChange(+winReward);
-								Messages.GameResult("coinflip", 1, winReward);
+								return 1;
 							} else
 								{
-									BalanceChange(-bet);
-									Messages.GameResult("coinflip", 0, bet, textOutcome);
+									return 0;
 								}
+						}
+
+						public static void CoinflipResultMessage(int gameResult, string computerOutcome, double bet, double winReward)
+						{
+							switch (gameResult)
+							{
+								case 0:
+									BalanceChange(-bet);
+									Messages.GameResult("coinflip", 0, bet, computerOutcome);
+									break;
+								case 1:
+									BalanceChange(+winReward);
+									Messages.GameResult("coinflip", 1, winReward);
+									break;
+								default:
+									throw new ArgumentOutOfRangeException();
+							}
+						}
+
+						public static void PlayCoinflipRound()
+						{
+							var computerOutcome = GenerateComputerCoinflip();
+							(string userChoice, double bet) = UserCoinflipConfig();
+							CoinflipResultMessage(GameResult(userChoice, computerOutcome), computerOutcome, bet, WinReward(bet));
 						}
 					}
 
@@ -310,36 +340,27 @@ namespace ChervyakCasino
 							Console.WriteLine(Messages.RspGameMessage);
 						}
 
+						public static Rsp RspOutput(string choice) => choice switch
+						{
+							"камень" => Rsp.Rock,
+							"бумага" => Rsp.Paper,
+							"ножницы" => Rsp.Scissors,
+							_ => throw new ArgumentOutOfRangeException()
+						};
+						
+
 						public static (Rsp userChoice, double bet) UserRSPConfig()
 						{
-							double bet = UserBet();
 							Console.WriteLine(Messages.RspChoiceQuestion);
-							string? userInput = Console.ReadLine()?.Trim().ToLower();
-							while ((userInput != "камень") && (userInput != "ножницы") && (userInput != "бумага"))
-							{
-								Console.WriteLine(Messages.RspChoiceQuestion);
-								userInput = Console.ReadLine()?.Trim().ToLower();
-							}
-							Rsp choice = userInput switch
-							{
-								"камень" => Rsp.Rock,
-								"бумага" => Rsp.Paper,
-								"ножницы" => Rsp.Scissors,
-								_ => 0
-							};
-							return (choice, bet);
+							string choice = UserChoice("камень", "ножницы", "бумага");
+							return (RspOutput(choice), UserBet());
 						}
 
 						public static double WinReward(double bet) =>
 						bet * BasicCoefficient;
 
-						public static void PlayRSP()
+						public static void RspResultMessage(int gameResult, string ruTranslate, double bet, double winReward)
 						{
-							OutputMessages();
-							(Rsp computerChoice, string ruTranslate) = GenerateComputerChoice();
-							(Rsp userChoice, double bet) = UserRSPConfig();
-							double winReward = WinReward(bet);
-							int gameResult = (3 + (int)userChoice - (int)computerChoice) % 3;
 							switch (gameResult)
 							{
 								case 0:
@@ -354,8 +375,16 @@ namespace ChervyakCasino
 									Messages.GameResult("rsp", 0, bet, ruTranslate);
 									return;
 								default:
-									return;
+									throw new ArgumentOutOfRangeException();
 							}
+						}
+						public static void PlayRSP()
+						{
+							OutputMessages();
+							(Rsp computerChoice, string ruTranslate) = GenerateComputerChoice();
+							(Rsp userChoice, double bet) = UserRSPConfig();
+							int gameResult = (3 + (int)userChoice - (int)computerChoice) % 3;
+							RspResultMessage(gameResult, ruTranslate, bet, WinReward(bet));
 						}
 					}
 
@@ -375,14 +404,10 @@ namespace ChervyakCasino
 						public static (double bet, string choice, int yourNumber, int randomNumber) UserHighlowConfig()
 						{	
 							(int yourNumber, int randomNumber) = GenerateHighLowNumbers();
-							string ? choice = "";
 							double bet = UserBet();
 							Console.WriteLine($"Ваше число: {yourNumber}");
 							Console.WriteLine("Больше или меньше?");
-							while ((choice != "больше") && (choice != "меньше"))
-							{
-								choice = Console.ReadLine()?.Trim().ToLower();
-							}
+							string choice = UserChoice("больше", "меньше");
 							return (bet, choice, yourNumber, randomNumber);
 						}
 
@@ -402,20 +427,44 @@ namespace ChervyakCasino
 							return Math.Round(bet * (10.0 / outcome * (BasicCoefficient / 2.0)), 2);	
 						}
 
+						public static byte HighlowResult(string userChoice, int yourNumber, int randomNumber)
+						{
+							if ((userChoice == "больше" && yourNumber < randomNumber) || (userChoice == "меньше" && yourNumber > randomNumber))
+							{
+								return 1;
+							} else
+								{
+									return 0;
+								}
+						}
+
+						public static void HighlowResultMessage(byte gameResult, int randomNumber, double bet, double winReward)
+						{
+							string randomNumberOut = Convert.ToString(randomNumber);
+							switch (gameResult)
+							{
+								case 0:
+									BalanceChange(-bet);
+									Messages.GameResult("highlow", gameResult, bet, randomNumberOut);
+									break;
+
+								case 1:
+									BalanceChange(winReward);
+									Messages.GameResult("highlow", gameResult, winReward, randomNumberOut);
+									break;
+								
+								default:
+									throw new ArgumentOutOfRangeException();
+							}
+						}
+
 						public static void PlayHighlow()
 						{
 							OutMessage();
 							(double bet, string userChoice, int yourNumber, int randomNumber) = UserHighlowConfig();
 							var winReward = WinReward(bet, userChoice, yourNumber);
-							if ((userChoice == "больше" && yourNumber < randomNumber) || (userChoice == "меньше" && yourNumber > randomNumber))
-							{
-								BalanceChange(+winReward);
-								Messages.GameResult("highlow", 1, winReward, Convert.ToString(randomNumber));
-							} else
-								{
-									BalanceChange(-bet);
-									Messages.GameResult("highlow", 0, bet, Convert.ToString(randomNumber));
-								}
+							var gameResult = HighlowResult(userChoice, yourNumber, randomNumber);
+							HighlowResultMessage(gameResult, randomNumber, bet, winReward);
 						}
 					}
 			}	
