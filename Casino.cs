@@ -12,7 +12,7 @@ namespace Casino
 		public static void BalanceChange(double difference) =>
 		balance += difference;
 
-		public static double UserBet()
+		public static double GetBetFromUser()
 		{
 			Console.WriteLine(Messages.BetQuestion);
 			double.TryParse(Console.ReadLine(), out double bet);
@@ -24,7 +24,7 @@ namespace Casino
 			return bet;
 		}
 
-		public static string UserChoice(params string[] options)
+		public static string GetChoiceFromUser(params string[] options)
 		{
 			string input;
 			while (true)
@@ -43,9 +43,9 @@ namespace Casino
 
 			public static (string choice, double bet) UserCoinflipConfig()
 			{
-				double bet = UserBet();
+				double bet = GetBetFromUser();
 				Console.WriteLine(Messages.HeadsOrTailsQuestion);
-				string choice = UserChoice("орел", "решка");
+				string choice = GetChoiceFromUser("орел", "решка");
 				return (choice, bet);
 			}
 
@@ -53,18 +53,10 @@ namespace Casino
 			public static string GenerateComputerCoinflip() =>
 			(Random.Shared.Next(0, 2) == 1) ? "решка" : "орел";
 
-			public static double WinReward(double bet) =>
+			public static double CalcWinReward(double bet) =>
 			bet * BasicCoefficient;
 
-			public static void OutputMessages()
-			{
-				if (Settings.IsShowRulesEnabled())
-				{
-					Console.WriteLine(Messages.HeadsOrTailsStartMessage);
-				}
-			}
-
-			public static int GameResult(string userChoice, string computerOutcome)
+			public static int CalcGameResult(string userChoice, string computerOutcome)
 			{
 				if (userChoice == computerOutcome)
 				{
@@ -82,11 +74,11 @@ namespace Casino
 				{
 					case 0:
 						BalanceChange(-bet);
-						Messages.GameResult("coinflip", 0, bet, computerOutcome);
+						Messages.GameResultHandler("coinflip", 0, bet, computerOutcome);
 						break;
 					case 1:
 						BalanceChange(+winReward);
-						Messages.GameResult("coinflip", 1, winReward);
+						Messages.GameResultHandler("coinflip", 1, winReward);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -95,10 +87,10 @@ namespace Casino
 
 			public static void PlayCoinflipRound()
 			{
-				OutputMessages();
+				Messages.PrintRulesMessages(Messages.HeadsOrTailsRulesMessage);
 				var computerOutcome = GenerateComputerCoinflip();
 				(string userChoice, double bet) = UserCoinflipConfig();
-				CoinflipResultMessage(GameResult(userChoice, computerOutcome), computerOutcome, bet, WinReward(bet));
+				CoinflipResultMessage(CalcGameResult(userChoice, computerOutcome), computerOutcome, bet, CalcWinReward(bet));
 			}
 		}
 
@@ -123,15 +115,6 @@ namespace Casino
 				return (randomRsp, ruTranslate);
 			}
 
-			public static void OutputMessages()
-			{
-				if (Settings.IsShowRulesEnabled())
-				{
-					Console.WriteLine(Messages.RspStartMessage);
-				}
-				Console.WriteLine(Messages.RspGameMessage);
-			}
-
 			public static Rsp RspOutput(string choice) => choice switch
 			{
 				"камень" => Rsp.Rock,
@@ -144,8 +127,8 @@ namespace Casino
 			public static (Rsp userChoice, double bet) UserRSPConfig()
 			{
 				Console.WriteLine(Messages.RspChoiceQuestion);
-				string choice = UserChoice("камень", "ножницы", "бумага");
-				return (RspOutput(choice), UserBet());
+				string choice = GetChoiceFromUser("камень", "ножницы", "бумага");
+				return (RspOutput(choice), GetBetFromUser());
 			}
 
 			public static double WinReward(double bet) =>
@@ -156,15 +139,15 @@ namespace Casino
 				switch (gameResult)
 				{
 					case 0:
-						Messages.GameResult("rsp", 2, 0, ruTranslate);
+						Messages.GameResultHandler("rsp", 2, 0, ruTranslate);
 						return;
 					case 1:
 						BalanceChange(winReward);
-						Messages.GameResult("rsp", 1, winReward, ruTranslate);
+						Messages.GameResultHandler("rsp", 1, winReward, ruTranslate);
 						return;
 					case 2:
 						BalanceChange(-bet);
-						Messages.GameResult("rsp", 0, bet, ruTranslate);
+						Messages.GameResultHandler("rsp", 0, bet, ruTranslate);
 						return;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -172,7 +155,8 @@ namespace Casino
 			}
 			public static void PlayRSP()
 			{
-				OutputMessages();
+				Messages.PrintRulesMessages(Messages.RspRulesMessage);
+				Messages.PrintGameMessage(Messages.RspGameMessage);
 				(Rsp computerChoice, string ruTranslate) = GenerateComputerChoice();
 				(Rsp userChoice, double bet) = UserRSPConfig();
 				int gameResult = (3 + (int)userChoice - (int)computerChoice) % 3;
@@ -185,21 +169,13 @@ namespace Casino
 			public static (int yourNumber, int randomNumber) GenerateHighLowNumbers() =>
 			(Random.Shared.Next(1, 11), Random.Shared.Next(1, 11));
 
-			public static void OutMessage()
-			{
-				if (Settings.IsShowRulesEnabled())
-				{
-					Console.WriteLine(Messages.HighlowStartMessage);
-				}
-			}
-
 			public static (double bet, string choice, int yourNumber, int randomNumber) UserHighlowConfig()
 			{
 				(int yourNumber, int randomNumber) = GenerateHighLowNumbers();
-				double bet = UserBet();
+				double bet = GetBetFromUser();
 				Console.WriteLine($"Ваше число: {yourNumber}");
 				Console.WriteLine("Больше или меньше?");
-				string choice = UserChoice("больше", "меньше");
+				string choice = GetChoiceFromUser("больше", "меньше");
 				return (bet, choice, yourNumber, randomNumber);
 			}
 
@@ -219,7 +195,7 @@ namespace Casino
 				return Math.Round(bet * (10.0 / outcome * (BasicCoefficient / 2.0)), 2);
 			}
 
-			public static byte HighlowResult(string userChoice, int yourNumber, int randomNumber)
+			public static int HighlowResult(string userChoice, int yourNumber, int randomNumber)
 			{
 				if ((userChoice == "больше" && yourNumber < randomNumber) || (userChoice == "меньше" && yourNumber > randomNumber))
 				{
@@ -231,19 +207,19 @@ namespace Casino
 				}
 			}
 
-			public static void HighlowResultMessage(byte gameResult, int randomNumber, double bet, double winReward)
+			public static void HighlowResultMessage(int gameResult, int randomNumber, double bet, double winReward)
 			{
 				string randomNumberOut = Convert.ToString(randomNumber);
 				switch (gameResult)
 				{
 					case 0:
 						BalanceChange(-bet);
-						Messages.GameResult("highlow", gameResult, bet, randomNumberOut);
+						Messages.GameResultHandler("highlow", gameResult, bet, randomNumberOut);
 						break;
 
 					case 1:
 						BalanceChange(winReward);
-						Messages.GameResult("highlow", gameResult, winReward, randomNumberOut);
+						Messages.GameResultHandler("highlow", gameResult, winReward, randomNumberOut);
 						break;
 
 					default:
@@ -253,7 +229,7 @@ namespace Casino
 
 			public static void PlayHighlow()
 			{
-				OutMessage();
+				Messages.PrintRulesMessages(Messages.HighlowRulesMessage);
 				(double bet, string userChoice, int yourNumber, int randomNumber) = UserHighlowConfig();
 				var winReward = WinReward(bet, userChoice, yourNumber);
 				var gameResult = HighlowResult(userChoice, yourNumber, randomNumber);

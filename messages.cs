@@ -4,7 +4,7 @@ namespace Casino
     {
         /// GAME MESSAGES
         // H.O.T messages
-        public const string HeadsOrTailsStartMessage = """
+        public const string HeadsOrTailsRulesMessage = """
                     Крупье:
                     Добро пожаловать за стол для игры в Орел и Решку!
                     Правила просты:
@@ -17,7 +17,7 @@ namespace Casino
 					""";
 
         // R.S.P messages
-        public const string RspStartMessage = """
+        public const string RspRulesMessage = """
 					Крупье:
 					Добро пожаловать за стол для игры в Камень-Ножницы-Бумага!
 					Правила просты:
@@ -33,7 +33,7 @@ namespace Casino
 					""";
 
         // highlow messages
-        public const string HighlowStartMessage = """
+        public const string HighlowRulesMessage = """
 					Крупье:
 					Ваша задача угадать, будет следующее число больше или меньше вашего текущего.
 					Если выпадает число, равное вашему, вы проигрываете.
@@ -91,7 +91,7 @@ namespace Casino
                     break;
 
                 case "HESoYAM":
-                    Games.BalanceChange(100);
+                    Games.BalanceChange(250);
                     Console.WriteLine(debugCheatCode);
                     break;
 
@@ -102,7 +102,18 @@ namespace Casino
             ;
         }
 
-        public static void GameResult(string game, byte result, double prize, object? details = null)
+        public static void PrintRulesMessages(string question)
+        {
+            if (Settings.IsShowRulesEnabled())
+            {
+                Console.WriteLine(question);
+            }
+        }
+
+        public static void PrintGameMessage(string question) =>
+        Console.WriteLine(question);
+
+        public static void GameResultHandler(string game, int result, double prize, object? details = null)
         {
             string status = "", change = "";
             switch (result)
@@ -179,11 +190,8 @@ namespace Casino
 						В нашем казино - выигрывают!
 						Ваш баланс на сегодня: {Games.ShowBalance()}
 						------------------------------------
-						Приступить к лудоприключению... (Нажмите ENTER)
+						Приступить к лудоприключению...
 						""");
-            Console.ReadKey();
-            Console.Clear();
-            Console.ReadKey();
         }
 
         public static void CheckEndOfGame(double balance)

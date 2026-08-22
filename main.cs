@@ -20,7 +20,10 @@ namespace Casino
             Messages.ShowHeader();
 
             while (true)
-            {
+            {   
+                Console.WriteLine("Нажмите ENTER, чтобы продолжить.");
+                Console.ReadKey();
+                Console.Clear();
                 Messages.CheckEndOfGame(Games.ShowBalance());
                 Messages.Menu();
             }
